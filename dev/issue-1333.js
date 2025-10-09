@@ -11,13 +11,12 @@ class JoiValidator extends BaseValidator {
 	}
 
 	compile(schema) {
-		return (params) => this.validate(params, schema);
+		return params => this.validate(params, schema);
 	}
 
 	validate(params, schema) {
 		const res = schema.validate(params);
-		if (res.error)
-			throw new ValidationError(res.error.message, null, res.error.details);
+		if (res.error) throw new ValidationError(res.error.message, null, res.error.details);
 
 		return true;
 	}
@@ -28,7 +27,7 @@ const broker = new ServiceBroker({
 	tracking: {
 		enabled: true
 	},
-	validator: new JoiValidator
+	validator: new JoiValidator()
 });
 
 broker.createService({
@@ -47,10 +46,12 @@ broker.createService({
 	}
 });
 
-broker.start().then(async () => {
-	const res = await broker.call("test.hello", { name: 123 });
-
-}).catch(err => {
-	broker.logger.error(err);
-	broker.stop();
-});
+broker
+	.start()
+	.then(async () => {
+		const res = await broker.call("test.hello", { name: 123 });
+	})
+	.catch(err => {
+		broker.logger.error(err);
+		broker.stop();
+	});
